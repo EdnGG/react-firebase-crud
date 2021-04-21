@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react'
 import { auth, db } from '../firebase'
+import { withRouter } from 'react-router-dom'
 
-const Login = () => {
+const Login = (props) => {
 
   const [usuario, setUsuario] = useState('')
   const [contrasena, setContrasena] = useState('')
@@ -30,13 +31,31 @@ const Login = () => {
 
     if (esRegistro) {
       registrar()
+    } else {
+      login()
     }
   }
 
+  
   const registrar = useCallback( async () => {
     try {
       const res = await auth().createUserWithEmailAndPassword(usuario, contrasena)
       console.log('Response: ', res.user)
+
+      // Relacinando usuario con su propia collecion de datos
+      await db.collection('usuarios').doc(res.user.email).set({
+        email: res.user.email,
+        uid: res.user.uid
+      })
+      // .add genere un uid automatico en firestore
+      await db.collection(res.user.uid).add({
+        name: 'example',
+        fecha: Date.now()
+      })
+      setUsuario('')
+      setContrasena('')
+      setError(null)
+      props.history.push('/admin')
     } catch (error) {
       console.log('Error creando usuario: ', error)
       if (error.code === 'auth/invalid-email') {
@@ -46,7 +65,26 @@ const Login = () => {
         setError('Usuario ya existe')
       }
     }
-  }, [usuario, contrasena])
+  }, [usuario, contrasena, props.history])
+
+  const login = useCallback(async () => {
+    try {
+      const res = await auth().signInWithEmailAndPassword(usuario, contrasena)
+      console.log('Usuario logeado: ', res.user)
+      setUsuario('')
+      setContrasena('')
+      setError(null)
+      props.history.push('/admin')
+    } catch (error) {
+      console.log('Error en el login: ', error)
+      if (error.code === 'auth/invalid-email') {
+        setError('Usuario invalido')
+      }
+      if (error.code === 'auth/user-not-found') {
+        setError('Usuario invalido')
+      }
+    }
+  },[usuario, contrasena, props.history])
 
   return (
     <div className="mt-5">
@@ -107,4 +145,4 @@ const Login = () => {
   )
 }
 
-export default Login
+export default withRouter(Login)

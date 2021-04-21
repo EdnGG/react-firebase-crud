@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
-// import { firebase } from './firebase'
 import { db } from '../firebase'
 
-const Tareas = () => {
+const Tareas = (props) => {
 
 const [tareas, setTareas] = useState([])
   const [tarea, setTarea] = useState([])
@@ -13,7 +12,7 @@ const [tareas, setTareas] = useState([])
     const obtenerDatos = async () => {
       try {
         // const db = firebase.firestore()
-        const data = await db.collection('tareas').get()
+        const data = await db.collection(props.user.uid).get()
         console.log('Data', data.docs)
         // needs to check
         const arrayData = await data.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
@@ -27,7 +26,7 @@ const [tareas, setTareas] = useState([])
 
     obtenerDatos()
     
-  }, [])
+  }, [props.user.uid])
 
   const agregar = async (e) => {
     e.preventDefault()
@@ -44,7 +43,7 @@ const [tareas, setTareas] = useState([])
         // edad: tarea.edad,
         fecha: Date.now()
       }
-      const data = await db.collection('tareas').add(nuevaTarea)
+      const data = await db.collection(props.user.uid).add(nuevaTarea)
       
       setTareas([
         ...tareas,
@@ -65,7 +64,7 @@ const [tareas, setTareas] = useState([])
       // const db = firebase.firestore()
     
       // const elementoEliminado = await db.collection('tareas').doc(id).delete()
-      await db.collection('tareas').doc(id).delete()
+      await db.collection(props.user.uid).doc(id).delete()
 
       // Este es para ver el nuevo arreglo en la UI, se filtra por el id que se recive directamente del evento onclick del boton eliminar
       const nuevoArray = tareas.filter(tarea => tarea.id !== id)
@@ -90,7 +89,7 @@ const [tareas, setTareas] = useState([])
     try {
       // No necesitamos guardar la respuesta
       // const db = firebase.firestore()
-      await db.collection('tareas').doc(id).update({
+      await db.collection(props.user.uid).doc(id).update({
         nombre: tarea
       })
 

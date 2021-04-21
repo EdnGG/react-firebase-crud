@@ -1,5 +1,5 @@
-// import React, { useEffect, useState } from 'react'
-// import { firebase } from './firebase'
+import React, { useEffect, useState } from 'react'
+import { auth } from './firebase'
 // import { db, auth } from './firebase'
 import { BrowserRouter as Router, Switch, Route} from 'react-router-dom'
 import Navbar from './components/Navbar'
@@ -12,12 +12,27 @@ import Tareas from './components/Tareas'
 
 function App() {
 
-  return (
+  const [firebaseUser, setFirebaseUser] = useState(false)
+  
+  useEffect(() => {
+    auth().onAuthStateChanged(user => {
+      console.log(user)
+      if (user) {
+        setFirebaseUser(user)
+      } else {
+        setFirebaseUser(null)
+      }
+    })
+    
+  },[])
+
+
+  return firebaseUser !== false ? (
     <Router>
     <div className="container mt-3">
         <div className="row my-4">
           <div className="col-md-12">
-          <Navbar />
+          <Navbar firebaseUser={firebaseUser} />
             <Switch>
               <Route path="/" exact>
                 <Inicio />
@@ -36,7 +51,10 @@ function App() {
         </div>
     </div>
     </Router>
-  );
+  ) :
+  (
+    <h2>Loading...</h2>
+  )
 }
 
 export default App;

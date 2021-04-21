@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { auth } from './firebase'
-// import { db, auth } from './firebase'
 import { BrowserRouter as Router, Switch, Route} from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Login from './components/Login'
@@ -29,7 +28,7 @@ function App() {
 
   return firebaseUser !== false ? (
     <Router>
-    <div className="container mt-3">
+    <div className="container mt-3 text-center">
         <div className="row my-4">
           <div className="col-md-12">
           <Navbar firebaseUser={firebaseUser} />
@@ -53,7 +52,12 @@ function App() {
     </Router>
   ) :
   (
-    <h2>Loading...</h2>
+  // <div className="text-center spinner-border" style={{width: "3rem;", height: "3rem;"}} role="status">
+  //   <span class="sr-only">Loading...</span>
+  // </div>
+      <div class="container spinner-border text-success text-center" role="status">
+  <span class="sr-only">Loading...</span>
+</div>
   )
 }
 
